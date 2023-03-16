@@ -3262,6 +3262,8 @@ class NeuralProphet:
                 lagged_components.append(f"lagged_regressor_{name}")
         for comp in lagged_components:
             if comp in components:
+                if components[comp].shape[1] == 1 and self.n_forecasts > 1:
+                    components[comp] = np.repeat(components[comp], self.n_forecasts, axis=1)
                 for j in range(len(self.config_train.quantiles)):
                     for forecast_lag in range(1, self.n_forecasts + 1):
                         forecast = components[comp][:, forecast_lag - 1, j]  # 0 is the median quantile
@@ -3283,6 +3285,8 @@ class NeuralProphet:
         # only for non-lagged components
         for comp in components:
             if comp not in lagged_components:
+                if components[comp].shape[1] == 1 and self.n_forecasts > 1:
+                    components[comp] = np.repeat(components[comp], self.n_forecasts, axis=1)
                 for j in range(len(self.config_train.quantiles)):
                     forecast_0 = components[comp][0, :, j]
                     forecast_rest = components[comp][1:, self.n_forecasts - 1, j]
